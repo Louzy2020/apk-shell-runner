@@ -1,7 +1,6 @@
 import hashlib, re, sys, traceback
 from pathlib import Path
 import requests
-from bs4 import BeautifulSoup
 
 BASE = "https://www.apkmirror.com"
 SLUG = ("apk/strava-inc/"
@@ -66,10 +65,9 @@ def candidates_from_html(html, base):
 s = requests.Session()
 ok = False
 # 路径 1: 已知直链(搜索缓存里的确切文件名)
-direct = (BASE + "/download.apkmirror.com/" + SLUG +
+direct = ("https://download.apkmirror.com/" + SLUG +
           "strava-training-track-running-cycling-swimming-wear-os-1-45-release/"
           "strava-run-bike-hike-wear-os-1-45-android-apk-download/" + FNAME)
-direct = direct.replace(BASE + "/download.apkmirror.com/", "https://download.apkmirror.com/")
 try:
     save_stream(s, direct)
     ok = True
@@ -82,15 +80,7 @@ if not ok:
         r = s.get(PAGE, headers=H, timeout=90)
         log("版本页 status " + str(r.status_code) + " len " + str(len(r.text)))
         r.raise_for_status()
-        soup = BeautifulSoup(r.text, "html.parser")
-        urls = []
-        for sel in ("a.downloadButton[href]", "a[href*='/download/']", "a[href*='download.php']"):
-            for a in soup.select(sel):
-                u = a.get("href")
-                if u:
-                    urls.append(absu(u, PAGE))
-        urls += candidates_from_html(r.text, PAGE)
-        seen = set(); urls = [u for u in urls if not (u in seen or seen.add(u))]
+        urls = candidates_from_html(r.text, PAGE)
         log("候选下载页 " + str(len(urls)) + " 个")
         for u in urls[:8]:
             try:
@@ -98,13 +88,7 @@ if not ok:
                 log("  确认页 " + str(r2.status_code) + " " + u[:140])
                 if r2.status_code != 200:
                     continue
-                c = BeautifulSoup(r2.text, "html.parser")
-                finals = []
-                for a in c.select("a[href]"):
-                    href = a.get("href", "")
-                    if any(k in href.lower() for k in ("download.apkmirror.com", ".apkm", "download.php")):
-                        finals.append(absu(href, u))
-                finals += candidates_from_html(r2.text, u)
+                finals = candidates_from_html(r2.text, u)
                 # 过滤掉 HTML 页面, 优先真实文件
                 finals = [x for x in finals if ".apkm" in x or "download.apkmirror.com" in x]
                 seen2 = set(); finals = [x for x in finals if not (x in seen2 or seen2.add(x))]
