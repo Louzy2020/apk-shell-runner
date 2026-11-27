@@ -82,6 +82,9 @@ try:
     print("AD KEYS", list(d.keys()), flush=True)
     print("version", d.get("version_name"), "code", d.get("version_code"), flush=True)
     print("asset", json.dumps(d.get("asset", {}))[:800], flush=True)
+    print("version_open_config", json.dumps(d.get("version_open_config", {}))[:1200], flush=True)
+    print("source_config", json.dumps(d.get("source_config", {}))[:600], flush=True)
+    print("has_version", d.get("has_version"), "version_id", d.get("version_id"), flush=True)
     Path("apkpure_detail.json").write_text(json.dumps(d, ensure_ascii=False, indent=2))
 except Exception as e:
     print("detail ERR", str(e)[:250], flush=True)
