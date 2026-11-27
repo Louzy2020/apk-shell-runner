@@ -85,6 +85,13 @@ try:
     print("version_open_config", json.dumps(d.get("version_open_config", {}))[:1200], flush=True)
     print("source_config", json.dumps(d.get("source_config", {}))[:600], flush=True)
     print("has_version", d.get("has_version"), "version_id", d.get("version_id"), flush=True)
+    try:
+        rv = s.get("https://api.pureapk.com/m/v3/cms/app_version",
+                   params={"hl": "en", "package_name": "com.strava"}, timeout=60)
+        print("versions", rv.status_code, len(rv.text), flush=True)
+        print("VERRAW", rv.text[:5000], flush=True)
+    except Exception as e:
+        print("versions ERR", str(e)[:200], flush=True)
     Path("apkpure_detail.json").write_text(json.dumps(d, ensure_ascii=False, indent=2))
 except Exception as e:
     print("detail ERR", str(e)[:250], flush=True)
