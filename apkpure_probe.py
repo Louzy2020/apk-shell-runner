@@ -75,7 +75,12 @@ try:
     body = json.dumps({"package_name": "com.strava", "hl": "en-US"})
     r = s.post(API + "/get_app_detail", data=body, headers=signed(body), timeout=60)
     print("detail", r.status_code, len(r.text), flush=True)
-    d = r.json().get("data", {})
+    raw = r.json()
+    print("TOP KEYS", list(raw.keys()), flush=True)
+    print("RAW", json.dumps(raw, ensure_ascii=False)[:4000], flush=True)
+    d = raw.get("data", {})
+    if isinstance(d, list):
+        d = d[0] if d else {}
     print("version", d.get("version_name"), "code", d.get("version_code"), flush=True)
     print("asset", json.dumps(d.get("asset", {}))[:500], flush=True)
     Path("apkpure_detail.json").write_text(json.dumps(d, ensure_ascii=False, indent=2))
