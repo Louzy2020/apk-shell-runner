@@ -78,11 +78,10 @@ try:
     raw = r.json()
     print("TOP KEYS", list(raw.keys()), flush=True)
     print("RAW", json.dumps(raw, ensure_ascii=False)[:4000], flush=True)
-    d = raw.get("data", {})
-    if isinstance(d, list):
-        d = d[0] if d else {}
+    d = raw.get("app_detail", {})
+    print("AD KEYS", list(d.keys()), flush=True)
     print("version", d.get("version_name"), "code", d.get("version_code"), flush=True)
-    print("asset", json.dumps(d.get("asset", {}))[:500], flush=True)
+    print("asset", json.dumps(d.get("asset", {}))[:800], flush=True)
     Path("apkpure_detail.json").write_text(json.dumps(d, ensure_ascii=False, indent=2))
 except Exception as e:
     print("detail ERR", str(e)[:250], flush=True)
